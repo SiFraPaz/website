@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Norwegian Historical Maps — Resources for GIS &amp; Research</title>
+  <meta name="description" content="A curated overview of Norwegian historical atlases, georeferenced map archives, and GIS-ready basemap resources, compiled at UiT Norges arktiske universitet." />
+
+  <!-- Google Fonts: Playfair Display (display) + Source Sans 3 (body) + JetBrains Mono (code) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── TOKENS ─────────────────────────────────────────────── */
+    :root {
+      --ink:        #1c2330;   /* deep navy-black */
+      --ink-mid:    #3a4557;   /* secondary text */
+      --ink-light:  #6b7a91;   /* captions, meta */
+      --paper:      #f7f4ee;   /* warm off-white */
+      --paper-mid:  #ede9e0;   /* card backgrounds */
+      --accent:     #b5843a;   /* warm amber/brass */
+      --accent-dim: #d4aa6a;   /* softer accent */
+      --rule:       #cec8bb;   /* divider lines */
+      --code-bg:    #e8e4d8;   /* monospace blocks */
+      --link:       #2a5fa5;   /* readable blue */
+
+      --ff-display: 'Playfair Display', Georgia, serif;
+      --ff-body:    'Source Sans 3', system-ui, sans-serif;
+      --ff-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+      --measure: 68ch;
+      --gap: clamp(1.5rem, 4vw, 3rem);
+    }
+
+    /* ── RESET ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--ff-body);
+      font-size: clamp(1rem, 1.05vw + 0.6rem, 1.1rem);
+      font-weight: 300;
+      line-height: 1.75;
+    }
+
+    /* ── GRATICULE BACKGROUND (signature element) ────────────
+       A subtle SVG graticule pattern referencing old lat/lon grids */
+    .graticule-bg {
+      background-color: var(--ink);
+      background-image:
+        linear-gradient(rgba(181,132,58,.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(181,132,58,.07) 1px, transparent 1px),
+        linear-gradient(rgba(181,132,58,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(181,132,58,.03) 1px, transparent 1px);
+      background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
+      background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
+    }
+
+    /* ── LAYOUT ─────────────────────────────────────────────── */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 clamp(1rem, 5vw, 2.5rem);
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    header {
+      padding: clamp(3rem, 8vw, 5rem) 0 clamp(2.5rem, 6vw, 4rem);
+    }
+
+    .header-eyebrow {
+      font-family: var(--ff-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 1.25rem;
+    }
+
+    h1 {
+      font-family: var(--ff-display);
+      font-size: clamp(2rem, 5vw + 0.5rem, 3.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--paper);
+      max-width: 18ch;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--accent-dim);
+    }
+
+    .header-intro {
+      font-size: clamp(0.95rem, 1vw + 0.6rem, 1.1rem);
+      color: #b8c4d4;
+      max-width: 55ch;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+
+    .header-meta {
+      font-family: var(--ff-mono);
+      font-size: 0.72rem;
+      color: var(--ink-light);
+      letter-spacing: 0.06em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 1.5rem;
+    }
+
+    .header-meta span { color: var(--accent); margin-right: 0.3em; }
+
+    /* ── NAV PILLS ──────────────────────────────────────────── */
+    .nav-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0;
+      list-style: none;
+      margin-top: 2rem;
+    }
+
+    .nav-pills a {
+      display: inline-block;
+      padding: 0.35em 1em;
+      border: 1px solid rgba(181,132,58,.35);
+      border-radius: 2px;
+      font-family: var(--ff-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--accent-dim);
+      text-decoration: none;
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .nav-pills a:hover {
+      background: rgba(181,132,58,.15);
+      color: var(--paper);
+    }
+
+    /* ── MAIN ───────────────────────────────────────────────── */
+    main {
+      padding: var(--gap) 0 4rem;
+    }
+
+    /* ── SECTION ────────────────────────────────────────────── */
+    section {
+      margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
+    }
+
+    .section-label {
+      font-family: var(--ff-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    h2 {
+      font-family: var(--ff-display);
+      font-size: clamp(1.4rem, 2.5vw + 0.5rem, 1.9rem);
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--ink);
+      margin-bottom: 0.6rem;
+    }
+
+    .section-desc {
+      color: var(--ink-mid);
+      max-width: var(--measure);
+      margin-bottom: 1.75rem;
+      border-left: 2px solid var(--accent);
+      padding-left: 1rem;
+    }
+
+    h3 {
+      font-family: var(--ff-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.35rem;
+    }
+
+    /* ── CARDS ──────────────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--paper-mid);
+      border: 1px solid var(--rule);
+      border-top: 3px solid var(--accent);
+      padding: 1.4rem 1.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .card-type {
+      font-family: var(--ff-mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .card p {
+      font-size: 0.93rem;
+      color: var(--ink-mid);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .card-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+    }
+
+    .card-link {
+      font-family: var(--ff-mono);
+      font-size: 0.72rem;
+      color: var(--link);
+      text-decoration: none;
+      word-break: break-all;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.4em;
+    }
+
+    .card-link::before {
+      content: '↗';
+      flex-shrink: 0;
+      color: var(--accent);
+      margin-top: 0.05em;
+    }
+
+    .card-link:hover { text-decoration: underline; }
+
+    .card-note {
+      font-size: 0.8rem;
+      color: var(--ink-light);
+      font-style: italic;
+      border-top: 1px solid var(--rule);
+      padding-top: 0.6rem;
+      margin-top: 0.2rem;
+    }
+
+    /* ── WMS BOX ────────────────────────────────────────────── */
+    .wms-box {
+      background: var(--code-bg);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--accent);
+      padding: 0.9rem 1.2rem;
+      margin-top: 0.5rem;
+    }
+
+    .wms-label {
+      font-family: var(--ff-mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      margin-bottom: 0.4rem;
+    }
+
+    .wms-url {
+      font-family: var(--ff-mono);
+      font-size: 0.8rem;
+      color: var(--link);
+      word-break: break-all;
+      user-select: all;
+    }
+
+    /* ── ATLAS TABLE ────────────────────────────────────────── */
+    .atlas-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .atlas-table thead tr {
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .atlas-table th {
+      font-family: var(--ff-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .atlas-table td {
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      color: var(--ink-mid);
+    }
+
+    .atlas-table td:first-child {
+      font-family: var(--ff-display);
+      font-style: italic;
+      color: var(--ink);
+      font-size: 0.95rem;
+    }
+
+    .atlas-table tr:last-child td { border-bottom: none; }
+
+    .tag {
+      display: inline-block;
+      font-family: var(--ff-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--paper-mid);
+      border: 1px solid var(--rule);
+      color: var(--ink-light);
+      padding: 0.15em 0.5em;
+      border-radius: 2px;
+    }
+
+    .tag.research {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── WORKFLOW BOX ───────────────────────────────────────── */
+    .workflow {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 2rem 2rem 2.2rem;
+      margin: clamp(2rem, 5vw, 3.5rem) 0;
+    }
+
+    .workflow h2 {
+      color: var(--paper);
+      margin-bottom: 1rem;
+    }
+
+    .workflow-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
+      gap: 1.25rem;
+      counter-reset: steps;
+    }
+
+    .step {
+      counter-increment: steps;
+      position: relative;
+      padding-left: 0;
+    }
+
+    .step::before {
+      content: counter(steps, decimal-leading-zero);
+      display: block;
+      font-family: var(--ff-mono);
+      font-size: 1.6rem;
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-title {
+      font-family: var(--ff-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--paper);
+      margin-bottom: 0.3rem;
+    }
+
+    .step p {
+      font-size: 0.82rem;
+      color: #8fa0b8;
+      line-height: 1.65;
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 2rem 0 3rem;
+      font-family: var(--ff-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      color: var(--ink-light);
+    }
+
+    footer a { color: var(--link); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    .footer-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .atlas-table { font-size: 0.82rem; }
+      .atlas-table th, .atlas-table td { padding: 0.5rem 0.4rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+
+    /* ── FOCUS ──────────────────────────────────────────────── */
+    a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════════ -->
+<header class="graticule-bg">
+  <div class="container">
+    <p class="header-eyebrow">Research Resource · UiT Norges arktiske universitet</p>
+    <h1>Norwegian Historical Maps<br><em>&amp; Atlases</em></h1>
+    <p class="header-intro">
+      A curated guide to Norwegian historical atlases, georeferenced map archives, and
+      GIS-ready basemap resources — for researchers working with QGIS or other GIS software.
+      Compiled for orientation purposes; all links verified June 2026.
+    </p>
+    <p class="header-meta">
+      <span>↳</span> Compiled by Simon Mikkelsen, UiT / Universitetsbiblioteket &nbsp;|&nbsp;
+      Last updated: June 2026 &nbsp;|&nbsp;
+      Contact: <a href="mailto:simon.mikkelsen@uit.no" style="color: var(--accent-dim);">simon.mikkelsen@uit.no</a>
+    </p>
+    <nav aria-label="Jump to section">
+      <ul class="nav-pills">
+        <li><a href="#digital-gis">Digital / GIS</a></li>
+        <li><a href="#map-collections">Map Collections</a></li>
+        <li><a href="#print-atlases">Print Atlases</a></li>
+        <li><a href="#workflow">Suggested Workflow</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN
+════════════════════════════════════════════════════════ -->
+<main>
+  <div class="container">
+
+    <!-- ── SECTION 1: Digital / GIS ── -->
+    <section id="digital-gis">
+      <p class="section-label">Section 1</p>
+      <h2>Digital Resources &amp; GIS Services</h2>
+      <p class="section-desc">
+        The resources below provide georeferenced data, WMS/WMTS services, and open vector
+        datasets that can be loaded directly into QGIS, ArcGIS, or similar software. All are
+        free of charge unless otherwise noted.
+      </p>
+
+      <div class="card-grid">
+
+        <!-- Kartverket -->
+        <div class="card">
+          <p class="card-type">National Mapping Authority · Norway</p>
+          <h3>Kartverket — Historical Map Archive</h3>
+          <p>
+            Norway's national mapping authority (Statens kartverk / Kartverket) holds
+            approximately 10,000 historical land maps and 1,500 nautical charts dating back
+            to the 1600s. Most are freely downloadable as scanned raster images. Key series
+            include the <em>Kvadratmilkart</em> (c. 1774–1808), the <em>Gradteigskart</em>
+            (printed from c. 1895), and the georeferenced <em>Amtskart</em> (county maps,
+            1826 onward, scale 1:200,000) — the most practical series for use as a GIS basemap.
+          </p>
+          <div class="wms-box">
+            <p class="wms-label">WMS endpoint — load directly into QGIS / ArcGIS</p>
+            <p class="wms-url">https://wms.geonorge.no/skwms1/wms.historiskekart</p>
+          </div>
+          <div class="card-links">
+            <a class="card-link" href="https://kartverket.no/en/about-kartverket/historie/historiske-kart" target="_blank" rel="noopener">
+              Historical map archive &amp; free download portal
+            </a>
+            <a class="card-link" href="https://www.kartverket.no/en/api-and-data" target="_blank" rel="noopener">
+              APIs and open data (Kartverket)
+            </a>
+          </div>
+          <p class="card-note">
+            Higher-resolution GeoTIFF exports (beyond the free 300 dpi) are available on
+            request for a fee. The historical map viewer is in Norwegian only.
+          </p>
+        </div>
+
+        <!-- Geonorge -->
+        <div class="card">
+          <p class="card-type">National Geodata Portal · Norway</p>
+          <h3>Geonorge</h3>
+          <p>
+            Norway's official open geodata portal, operated by Kartverket. Provides free
+            downloads of topographic vector data at multiple scales (N50–N5000), current and
+            historical administrative boundary files (kommuner, fylker), road networks,
+            national elevation models, and place name datasets.
+            Particularly useful for obtaining historical administrative boundary files at
+            different dates (e.g., pre-2020 fylke boundaries), which are essential for
+            historical GIS projects.
+          </p>
+          <div class="card-links">
+            <a class="card-link" href="https://www.geonorge.no/en/" target="_blank" rel="noopener">
+              Geonorge — open geodata portal
+            </a>
+            <a class="card-link" href="https://kartkatalog.geonorge.no/" target="_blank" rel="noopener">
+              Map catalogue (search &amp; download datasets)
+            </a>
+            <a class="card-link" href="https://data.norge.no/en/datasets/7278170b-df3a-4745-bea9-45a5f8d4a34b/historiske-kart" target="_blank" rel="noopener">
+              Historical maps dataset entry on data.norge.no
+            </a>
+          </div>
+        </div>
+
+        <!-- Norgeskart -->
+        <div class="card">
+          <p class="card-type">Online Map Viewer · Norway</p>
+          <h3>Norgeskart</h3>
+          <p>
+            Kartverket's main public map viewer. Historical map layers — including the
+            Amtskart series and the first edition of the <em>Økonomisk kartverk</em> —
+            are accessible via the layer menu. Useful for previewing coverage before
+            downloading or integrating via WMS. Updated weekly.
+          </p>
+          <div class="card-links">
+            <a class="card-link" href="https://www.norgeskart.no/" target="_blank" rel="noopener">
+              norgeskart.no
+            </a>
+          </div>
+          <p class="card-note">
+            To access historical layers: open the map, click the layer icon, select
+            "Bakgrunnskart" → "Historisk Amtskart".
+          </p>
+        </div>
+
+      </div><!-- /.card-grid -->
+    </section>
+
+    <!-- ── SECTION 2: Digital Map Collections (Primary Sources) ── -->
+    <section id="map-collections">
+      <p class="section-label">Section 2</p>
+      <h2>Digital Map Collections</h2>
+      <p class="section-desc">
+        These collections provide high-resolution scans of historical maps as primary sources.
+        Maps typically require manual georeferencing before use as GIS basemaps, but they are
+        invaluable for research into early modern and 19th-century cartographic representations
+        of Norway.
+      </p>
+
+      <div class="card-grid">
+
+        <!-- NB -->
+        <div class="card">
+          <p class="card-type">National Library · Norway</p>
+          <h3>Nasjonalbiblioteket (nb.no)</h3>
+          <p>
+            The National Library of Norway (Oslo) holds approximately 150,000 maps in total —
+            the most extensive collection of printed maps of Norway, the Nordic countries, and
+            the High North in existence. All maps printed in Norway since 1882 are held under
+            the legal deposit scheme. The oldest items date to 1482. The <em>Map Centre</em>
+            (Kartsenteret) is the library's dedicated map reading room and exhibition space,
+            centred on the Ginsberg collection of c. 2,000 early maps, atlases, and geographical
+            books. A large portion of the full collection has been digitised and is freely
+            searchable and downloadable via the online library.
+          </p>
+          <div class="card-links">
+            <a class="card-link" href="https://www.nb.no/en/the-map-centre/" target="_blank" rel="noopener">
+              Map Centre overview (nb.no)
+            </a>
+            <a class="card-link" href="https://www.nb.no/search" target="_blank" rel="noopener">
+              Digital search portal — search <em>kart</em> + place name
+            </a>
+          </div>
+          <p class="card-note">
+            Search tip: combine the Norwegian term <em>kart</em> with a place or region name
+            to filter map results. Downloads are free. High-resolution orders can be
+            requested directly from the library. Note that some items under copyright are
+            accessible only from Norwegian IP addresses.
+          </p>
+        </div>
+
+        <!-- David Rumsey -->
+        <div class="card">
+          <p class="card-type">Private Collection · Stanford University</p>
+          <h3>David Rumsey Map Collection</h3>
+          <p>
+            One of the world's largest online historical map collections, with over 150,000 items
+            covering the 16th through 21st centuries. Norwegian and Scandinavian coverage is
+            particularly strong for the early modern period. A notable feature is the
+            built-in georeferencing tool, which overlays historical maps on modern geography
+            directly in the browser. Many maps are also accessible as WMS/WMTS tiles for
+            direct integration into QGIS.
+          </p>
+          <div class="card-links">
+            <a class="card-link" href="https://www.davidrumsey.com/luna/servlet/view/all/where/Norway/" target="_blank" rel="noopener">
+              Browse all Norway maps in the collection
+            </a>
+            <a class="card-link" href="https://www.davidrumsey.com/view" target="_blank" rel="noopener">
+              Viewers &amp; WMS/WMTS access instructions
+            </a>
+          </div>
+          <p class="card-note">
+            Free to access. The physical collection is housed at the David Rumsey Map Center,
+            Stanford University Library.
+          </p>
+        </div>
+
+        <!-- Wikimedia Commons -->
+        <div class="card">
+          <p class="card-type">Open Repository</p>
+          <h3>Wikimedia Commons — Old Maps of Norway</h3>
+          <p>
+            A large collection of freely reusable historical map images, including many items
+            digitised from the Nasjonalbiblioteket and other Norwegian institutions. Maps older
+            than 70 years are in the public domain. Useful for quickly locating and downloading
+            images for illustration or georeferencing.
+          </p>
+          <div class="card-links">
+            <a class="card-link" href="https://commons.wikimedia.org/wiki/Category:Old_maps_of_Norway" target="_blank" rel="noopener">
+              Category: Old maps of Norway
+            </a>
+            <a class="card-link" href="https://commons.wikimedia.org/wiki/Category:Maps_from_Nasjonalbiblioteket" target="_blank" rel="noopener">
+              Category: Maps from Nasjonalbiblioteket
+            </a>
+          </div>
+        </div>
+
+      </div><!-- /.card-grid -->
+    </section>
+
+    <!-- ── SECTION 3: Print Atlases ── -->
+    <section id="print-atlases">
+      <p class="section-label">Section 3</p>
+      <h2>Norwegian Historical Atlases in Print</h2>
+      <p class="section-desc">
+        The Norwegian tradition of historical atlases in print is relatively modest.
+        No comprehensive new research-grade atlas has been published since the 1980s.
+        The works listed here are the principal reference tools; they are not directly
+        usable as GIS basemaps but remain essential desk references.
+      </p>
+
+      <div style="overflow-x: auto;">
+        <table class="atlas-table" aria-label="Norwegian historical atlases">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Author / Editor</th>
+              <th>Publisher</th>
+              <th>Year</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Norsk historisk atlas</td>
+              <td>Hagen, Rolf M. et al.</td>
+              <td>J. W. Cappelens Forlag</td>
+              <td>1980</td>
+              <td>
+                <span class="tag research">Research</span><br>
+                The standard Norwegian historical atlas. 128 colour maps, covering
+                c. 16,000 BC to AD 1975. Still the most comprehensive single-volume reference.
+                Available via Norwegian university libraries and secondhand.
+              </td>
+            </tr>
+            <tr>
+              <td>Norges historie, Bd. 15: Historisk atlas</td>
+              <td>Mykland, Knut (ed.)</td>
+              <td>Cappelen</td>
+              <td>1980</td>
+              <td>
+                <span class="tag research">Research</span><br>
+                The atlas volume of the 15-volume <em>Norges historie</em> series.
+                Contains supplementary maps and indexes. Can be used independently.
+              </td>
+            </tr>
+            <tr>
+              <td>Nasjonalatlas for Norge</td>
+              <td>Various (thematic volumes)</td>
+              <td>Statens kartverk</td>
+              <td>1979–2005</td>
+              <td>
+                <span class="tag">Thematic</span><br>
+                A series of thematic volumes on topics including health (1996), sport (1997),
+                vegetation (1998), climate, and population. Useful as geographic reference works,
+                not as GIS basemaps. Available through Norwegian university libraries.
+              </td>
+            </tr>
+            <tr>
+              <td>Historisk atlas</td>
+              <td>—</td>
+              <td>Cappelen Damm</td>
+              <td>Various editions</td>
+              <td>
+                <span class="tag">Educational</span><br>
+                A pedagogically oriented world history atlas with Norwegian emphasis.
+                Includes maps of the Norse medieval realm, Danish rule, and 1814–1905.
+                Designed for upper secondary schools; not a research tool.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── WORKFLOW ── -->
+    <div class="workflow" id="workflow">
+      <h2>Suggested Workflow for QGIS</h2>
+      <div class="workflow-steps">
+        <div class="step">
+          <p class="step-title">Historical basemap via WMS</p>
+          <p>
+            Add the Kartverket WMS
+            (<code style="font-size:0.75em; color: var(--accent-dim);">wms.geonorge.no/skwms1/wms.historiskekart</code>)
+            as a raster layer. Select the Amtskart layer for 19th-century
+            county-level coverage.
+          </p>
+        </div>
+        <div class="step">
+          <p class="step-title">Vector boundaries from Geonorge</p>
+          <p>
+            Download historical fylke and kommune boundary files from
+            kartkatalog.geonorge.no. Multiple vintages are available (pre-2020,
+            2017, current). Use as editable overlay layers.
+          </p>
+        </div>
+        <div class="step">
+          <p class="step-title">Georeference scanned maps</p>
+          <p>
+            For earlier periods, download scans from the Nasjonalbiblioteket
+            or Kartverket archive and georeference them manually in QGIS
+            against the topographic base.
+          </p>
+        </div>
+        <div class="step">
+          <p class="step-title">Wider Scandinavian context</p>
+          <p>
+            Use the David Rumsey Collection for early modern maps with
+            direct WMS integration, or the
+            <a href="https://github.com/aourednik/historical-basemaps" style="color: var(--accent-dim);">historical-basemaps</a>
+            GeoJSON dataset for continental-scale boundaries.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.container -->
+</main>
+
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        Compiled by Simon Mikkelsen ·
+        UiT Norges arktiske universitet / Universitetsbiblioteket ·
+        Creating the New North research group
+      </div>
+      <div>
+        Last verified: June 2026 ·
+        <a href="https://uit.no" target="_blank" rel="noopener">uit.no</a> ·
+        <a href="https://www.geonorge.no/en/" target="_blank" rel="noopener">geonorge.no</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
